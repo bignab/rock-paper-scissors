@@ -62,7 +62,8 @@ function playSingleRound(computerSelection, playerSelection) {
 }
 
 function game() {
-    let playerTally = 0;    
+    let playerTally = 0;
+    let computerTally = 0;    
     for (i = 0; i < 5; i++) {
         let computerSelection = computerPlay();
         let playerSelection = promptPlayerSelection();
@@ -78,14 +79,34 @@ function game() {
                 console.log("You won! Computer played " + computerSelection + " and you played " + playerSelection);
                 break;
         }
-        playerTally += roundResult;
+        playerTally += isMaximumOf(0, roundResult); // Player tally will increase if player wins (roundResult is 1) and will be 0 otherwise
+        computerTally += isMaximumOf(0, roundResult*-1); // Computer tally will increase if player wins (roundResult is -1) and will be 0 otherwise
     }
     
     console.log("Total tally is " + playerTally);
+    console.log("Total computer tally is " + computerTally);
 }
 
 function promptPlayerSelection() {
     let playerInput = prompt("Please enter rock, paper, or scissors", "rock");
     playerInput = playerInput.toLowerCase();
     return playerInput;
+}
+
+function isMaximumOf(firstNumber, secondNumber) {
+    if (firstNumber >= secondNumber) {
+        return firstNumber;
+    }
+    else {
+        return secondNumber;
+    }
+}
+
+function isMinimumOf(firstNumber, secondNumber) {
+    if (firstNumber >= secondNumber) {
+        return seconNumber;
+    }
+    else {
+        return firstNumber;
+    }
 }
