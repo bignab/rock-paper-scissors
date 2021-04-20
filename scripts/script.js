@@ -1,3 +1,23 @@
+
+
+function initalizeButtonEventListeners() {
+    const buttonRock = document.querySelector('#rockButton');
+    const buttonPaper = document.querySelector('#paperButton');
+    const buttonScissors = document.querySelector('#scissorsButton');
+
+    buttonRock.addEventListener('click', () => {
+        game("rock");
+    });
+
+    buttonPaper.addEventListener('click', () => {
+        game("paper");
+    });
+
+    buttonScissors.addEventListener('click', () => {
+        game("scissors");
+    });
+}
+
 function computerPlay() {
     let randomNumber = Math.floor(Math.random() * 3);
     let computerMove = "Rock";
@@ -15,7 +35,7 @@ function computerPlay() {
     return computerMove;
 }
 
-function playSingleRound(computerSelection, playerSelection) {
+function playSingleRound(playerSelection, computerSelection) {
     let roundWinner = 1; // -1 means the player loses, 0 means the player draws, and 1 means the player wins
     switch(computerSelection) {
         case "rock":
@@ -58,33 +78,30 @@ function playSingleRound(computerSelection, playerSelection) {
         }
         break;
     }
+    addRPSTileToScoreboard(playerSelection, computerSelection, roundWinner);
     return roundWinner;
 }
 
-function game() {
-    let playerTally = 0;
-    let computerTally = 0;    
-    for (i = 0; i < 5; i++) {
-        let computerSelection = computerPlay();
-        let playerSelection = promptPlayerSelection();
-        let roundResult = playSingleRound(computerSelection, playerSelection);
-        switch(roundResult) {
-            case -1:
-                console.log("You lost! Computer played " + computerSelection + " and you played " + playerSelection);
-                break;
-            case 0:
-                console.log("You drew! Computer played " + computerSelection + " and you played " + playerSelection);
-                break;
-            case 1:
-                console.log("You won! Computer played " + computerSelection + " and you played " + playerSelection);
-                break;
-        }
-        playerTally += isMaximumOf(0, roundResult); // Player tally will increase if player wins (roundResult is 1) and will be 0 otherwise
-        computerTally += isMaximumOf(0, roundResult*-1); // Computer tally will increase if player wins (roundResult is -1) and will be 0 otherwise
+function game(playerSelection) {
+    const playerScoreBox = document.querySelector('#playerScoreBox');
+    const computerScoreBox = document.querySelector('#computerScoreBox');
+
+    if ((+playerScoreBox.textContent + +computerScoreBox.textContent) > 4) { // If the sum of the player and computer's scores is 5 or above, reset the scoreboard
+        resetScoreBoard();
     }
+
+    let playerTally = playerScoreBox.textContent;
+    let computerTally = computerScoreBox.textContent;
+
+    roundResult = playSingleRound(playerSelection, computerPlay());
+
+    playerTally = +playerTally + +isMaximumOf(0, roundResult); // Player tally will increase if player wins (roundResult is 1) and will be 0 otherwise
+    computerTally = +computerTally + +isMaximumOf(0, roundResult*-1); // Computer tally will increase if player wins (roundResult is -1) and will be 0 otherwise
+
+    playerScoreBox.textContent = playerTally;
+    computerScoreBox.textContent = computerTally;
     
-    console.log("Total tally is " + playerTally);
-    console.log("Total computer tally is " + computerTally);
+    checkWinCondition();
 }
 
 function promptPlayerSelection() {
@@ -108,5 +125,88 @@ function isMinimumOf(firstNumber, secondNumber) {
     }
     else {
         return firstNumber;
+    }
+}
+
+function addRPSTileToScoreboard(playerSelection, computerSelection, roundWinner) {
+    const scoreBoardContainer = document.querySelector('#gameResultsBox');
+
+    while (scoreBoardContainer.firstChild) {
+        scoreBoardContainer.removeChild(scoreBoardContainer.lastChild);
+    }
+
+    const scoreBoardTileOne = document.createElement('div');
+    const scoreBoardTileScore = document.createElement('div');
+    const scoreBoardTileTwo = document.createElement('div');
+
+    scoreBoardTileOne.classList.add('rpsButtonNoHover');
+    scoreBoardTileOne.classList.add('rpsButtonGreenBorder');
+    switch(playerSelection) {
+        case "rock":
+            scoreBoardTileOne.textContent = "R";
+            break;
+        case "paper":
+            scoreBoardTileOne.textContent = "P";
+            break;
+        case "scissors":
+            scoreBoardTileOne.textContent = "S";
+            break;
+    }
+
+    scoreBoardTileScore.classList.add('rpsButtonNoHover');
+    scoreBoardTileScore.classList.add('rpsButtonSmallerText');
+    switch(roundWinner) {
+        case 1:
+            scoreBoardTileScore.textContent = "Win";
+            break;
+        case 0: 
+            scoreBoardTileScore.textContent = "Draw";
+            break;
+        case -1: 
+            scoreBoardTileScore.textContent = "Lose";
+            break;
+    }
+
+    scoreBoardTileTwo.classList.add('rpsButtonNoHover');
+    scoreBoardTileTwo.classList.add('rpsButtonRedBorder');
+    switch(computerSelection) {
+        case "rock":
+            scoreBoardTileTwo.textContent = "R";
+            break;
+        case "paper":
+            scoreBoardTileTwo.textContent = "P";
+            break;
+        case "scissors":
+            scoreBoardTileTwo.textContent = "S";
+            break;
+    }
+
+    scoreBoardContainer.appendChild(scoreBoardTileOne);
+    scoreBoardContainer.appendChild(scoreBoardTileScore);
+    scoreBoardContainer.appendChild(scoreBoardTileTwo);
+
+}
+
+function resetScoreBoard() {
+    const playerScoreBox = document.querySelector('#playerScoreBox');
+    const computerScoreBox = document.querySelector('#computerScoreBox');
+
+    playerScoreBox.textContent = 0;
+    playerScoreBox.classList.remove("scoreBoxVictory");
+    computerScoreBox.textContent = 0;
+    computerScoreBox.classList.remove("scoreBoxVictory");
+}
+
+function checkWinCondition() {
+    const playerScoreBox = document.querySelector('#playerScoreBox');
+    const computerScoreBox = document.querySelector('#computerScoreBox');
+    
+    if ((+playerScoreBox.textContent + +computerScoreBox.textContent) > 4) {
+        if (+playerScoreBox.textContent > +computerScoreBox.textContent) {
+            playerScoreBox.classList.add("scoreBoxVictory");
+        }
+        else {
+            computerScoreBox.classList.add("scoreBoxVictory");
+        }
     }
 }
